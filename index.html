@@ -17,6 +17,7 @@
         #serial { white-space: pre-wrap; background: #f9f9f9; padding: 1rem; border: 1px solid #ddd; }
         .patient-info { background: #e9e9e9; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
         .hidden { display: none; }
+        .month-section { page-break-inside: avoid; }
     </style>
 </head>
 <body>
@@ -303,6 +304,7 @@ document.getElementById('generate').addEventListener('click', function () {
 
     months.forEach((mObj, idx) => {
 
+        calendarHTML += "<div class=\"month-section\">";
         calendarHTML += headerHTML;
         const year = mObj.year;
 
@@ -397,6 +399,7 @@ document.getElementById('generate').addEventListener('click', function () {
         calendarHTML += '</tbody></table>';
 
         if (idx < months.length-1) calendarHTML += '<hr>';
+        calendarHTML += '</div>';
 
     });
 
