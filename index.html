@@ -216,8 +216,7 @@ document.getElementById('generate').addEventListener('click', function () {
 
     for (let i = 0; i < totalDoses; i++) {
 
-        const dateStr = current.toISOString().slice(0,10); // YYYY-MM-DD
-
+        const dateStr = `${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,'0')}-${String(current.getDate()).padStart(2,'0')}`;
         const timeStr = current.toTimeString().slice(0,5); // HH:MM
 
         doses.push({date: new Date(current), dateStr, timeStr});
