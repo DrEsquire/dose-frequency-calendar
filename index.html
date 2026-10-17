@@ -299,9 +299,11 @@ document.getElementById('generate').addEventListener('click', function () {
     const monthlyCalendarDiv = document.getElementById('monthlyCalendar');
 
     let calendarHTML = '';
+    const headerHTML = `<div style="margin-bottom:0.5rem;font-size:0.9rem;"><strong>Patient:</strong> ${patientName || ''} ${patientBirthday ? 'DOB: ' + patientBirthday : ''} ${patientMRN ? 'MRN: ' + patientMRN : ''} | <strong>Drug:</strong> ${drugInfo} | <strong>Interval:</strong> ${intervalHours} hours</div>`;
 
     months.forEach((mObj, idx) => {
 
+        calendarHTML += headerHTML;
         const year = mObj.year;
 
         const month = mObj.month; // 0-11
