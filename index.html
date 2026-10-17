@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inotrope Dosing Calendar</title>
+    <title>Dosing Calendar</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 2rem; }
         .input-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
-        input[type="number"], input[type="datetime-local"] { padding: 0.5rem; width: 200px; }
+        input[type="number"], input[type="date"], input[type="time"] { padding: 0.5rem; width: 200px; }
         button { padding: 0.5rem 1rem; cursor: pointer; }
         table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
         th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
@@ -17,14 +17,18 @@
     </style>
 </head>
 <body>
-    <h1>Inotrope Dosing Calendar Generator</h1>
+    <h1>Dosing Calendar Generator</h1>
     <div class="input-group">
-        <label for="dose">Starting Dose (mcg/kg/min or mg/hr):</label>
-        <input type="number" id="dose" step="0.1" placeholder="e.g., 5.5">
+        <label for="dose">Starting Dose (e.g., mg, mcg):</label>
+        <input type="number" id="dose" step="0.1" placeholder="e.g., 500">
     </div>
     <div class="input-group">
-        <label for="start">Start Date &amp; Time (15‑minute steps):</label>
-        <input type="datetime-local" id="start" step="900"> <!-- 900 seconds = 15 minutes -->
+        <label for="date">Start Date:</label>
+        <input type="date" id="date">
+    </div>
+    <div class="input-group">
+        <label for="time">Start Time (12 or 24 hour):</label>
+        <input type="time" id="time">
     </div>
     <div class="input-group">
         <label for="interval">Dosing Interval (hours):</label>
@@ -44,7 +48,7 @@
                 <tr>
                     <th>#</th>
                     <th>Date</th>
-                    <th>Time (HH:MM)</th>
+                    <th>Time</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -56,16 +60,18 @@
     <script>
         document.getElementById('generate').addEventListener('click', function () {
             const dose = parseFloat(document.getElementById('dose').value);
-            const startStr = document.getElementById('start').value;
+            const dateStr = document.getElementById('date').value;
+            const timeStr = document.getElementById('time').value;
             const intervalHours = parseFloat(document.getElementById('interval').value);
             const count = parseInt(document.getElementById('count').value, 10);
 
-            if (isNaN(dose) || !startStr || isNaN(intervalHours) || isNaN(count) || count <= 0) {
+            if (isNaN(dose) || !dateStr || !timeStr || isNaN(intervalHours) || isNaN(count) || count <= 0) {
                 alert('Please fill in all fields with valid numbers.');
                 return;
             }
 
-            const start = new Date(startStr); // datetime-local returns local time
+            // Combine date and time into a Date object (local time)
+            const start = new Date(dateStr + 'T' + timeStr);
             if (isNaN(start)) {
                 alert('Invalid date/time.');
                 return;
@@ -78,7 +84,10 @@
             let current = new Date(start); // copy
             for (let i = 0; i < count; i++) {
                 const datePart = current.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
-                const timePart = current.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+                // Format time as HH:MM in 24-hour format for consistency
+                const hours = String(current.getHours()).padStart(2, '0');
+                const minutes = String(current.getMinutes()).padStart(2, '0');
+                const timePart = `${hours}:${minutes}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `<td>${i + 1}</td><td>${datePart}</td><td>${timePart}</td>`;
                 tbody.appendChild(row);
