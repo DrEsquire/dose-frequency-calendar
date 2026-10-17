@@ -315,9 +315,7 @@ document.getElementById('generate').addEventListener('click', function () {
 
         const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-        weekDays.forEach(day => {
-
-            calendarHTML += `<th class="weekday">${day}</th>`);
+        weekDays.forEach(day => calendarHTML += `<th class="weekday">${day}</th>`);
 
         calendarHTML += '</tr></thead><tbody>';
 
