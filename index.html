@@ -51,7 +51,7 @@
     </div>
     <div class="input-group">
         <label for="startTime">Start Time:</label>
-        <input type="time" id="startTime">
+        <input type="time" id="startTime" step="1800" value="08:00">
     </div>
 
     <fieldset>
@@ -94,6 +94,7 @@
 
     <script>
         document.getElementById('generate').addEventListener('click', function () {
+            console.log('Generate clicked');
             const drugInfo = document.getElementById('drugInfo').value.trim();
             const intervalHours = parseFloat(document.getElementById('intervalHours').value);
             const startDateStr = document.getElementById('startDate').value;
@@ -101,8 +102,9 @@
             const patientName = document.getElementById('patientName').value.trim();
             const patientBirthday = document.getElementById('patientBirthday').value;
             const patientMRN = document.getElementById('patientMRN').value.trim();
+                        console.log('Form values:', {drugInfo, intervalHours, startDateStr, startTimeStr, patientName, patientBirthday, patientMRN});
 
-            if (!drugInfo || isNaN(intervalHours) || intervalHours <= 0 ||
+                        if (!drugInfo || isNaN(intervalHours) || intervalHours <= 0 ||
                 !startDateStr || !startTimeStr ||
                 !patientName || !patientBirthday || !patientMRN) {
                 alert('Please fill in all fields with valid values.');
@@ -154,6 +156,7 @@
                 totalDoses = Math.floor(diffHours / intervalHours) + 1;
             }
 
+            console.log('Total doses:', totalDoses);
             const tbody = document.querySelector('#calendar tbody');
             tbody.innerHTML = '';
             const serialLines = [];
@@ -173,8 +176,7 @@
                 current = new Date(current.getTime() + intervalHours * 3600 * 1000);
             }
 
-            document.getElementById('serial').textContent = serialLines.join('
-');
+            document.getElementById('serial').textContent = serialLines.join('\n');
         });
 
         document.getElementById('printBtn').addEventListener('click', function () {
