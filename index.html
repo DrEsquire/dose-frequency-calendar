@@ -36,7 +36,7 @@
     </div>
 
     <div class="input-group">
-        <label for="drugInfo">Drug / Dose (e.g., Vancomycin 15 mg/kg):</label>
+        <label for="drugInfo">Drug:</label>
         <input type="text" id="drugInfo" placeholder="Drug and dose">
     </div>
 
@@ -77,23 +77,12 @@
 
     <div id="output">
         <h2>Dosing Calendar</h2>
-        <table id="calendar">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Drug / Dose</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <h2>Serial List (Date Time)</h2>
-        <div id="serial"></div>
+        <div id="patientInfoDisplay"></div>
+        <div id="monthlyCalendar"></div>
     </div>
 
     <script>
-        document.getElementById('generate').addEventListener('click', function () {
+                document.getElementById('generate').addEventListener('click', function () {
             console.log('Generate clicked');
             const drugInfo = document.getElementById('drugInfo').value.trim();
             const intervalHours = parseFloat(document.getElementById('intervalHours').value);
@@ -102,12 +91,12 @@
             const patientName = document.getElementById('patientName').value.trim();
             const patientBirthday = document.getElementById('patientBirthday').value;
             const patientMRN = document.getElementById('patientMRN').value.trim();
-                        console.log('Form values:', {drugInfo, intervalHours, startDateStr, startTimeStr, patientName, patientBirthday, patientMRN});
 
-                        if (!drugInfo || isNaN(intervalHours) || intervalHours <= 0 ||
-                !startDateStr || !startTimeStr ||
-                !patientName || !patientBirthday || !patientMRN) {
-                alert('Please fill in all fields with valid values.');
+            console.log('Form values:', {drugInfo, intervalHours, startDateStr, startTimeStr, patientName, patientBirthday, patientMRN});
+
+            if (!drugInfo || isNaN(intervalHours) || intervalHours <= 0 ||
+                !startDateStr || !startTimeStr) {
+                alert('Please fill in Drug, Dosing Interval, Start Date, and Start Time with valid values.');
                 return;
             }
 
@@ -157,48 +146,113 @@
             }
 
             console.log('Total doses:', totalDoses);
-            const tbody = document.querySelector('#calendar tbody');
-            tbody.innerHTML = '';
-            const serialLines = [];
 
+            // Generate dose dates and times
+            const doses = [];
             let current = new Date(start);
             for (let i = 0; i < totalDoses; i++) {
-                const datePart = current.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
-                const hours = String(current.getHours()).padStart(2, '0');
-                const minutes = String(current.getMinutes()).padStart(2, '0');
-                const timePart = `${hours}:${minutes}`;
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${i + 1}</td><td>${datePart}</td><td>${timePart}</td><td>${drugInfo}</td>`;
-                tbody.appendChild(row);
-                serialLines.push(`${datePart} ${timePart}`);
-
+                const dateStr = current.toISOString().slice(0,10); // YYYY-MM-DD
+                const timeStr = current.toTimeString().slice(0,5); // HH:MM
+                doses.push({date: new Date(current), dateStr, timeStr});
                 // add interval hours
                 current = new Date(current.getTime() + intervalHours * 3600 * 1000);
             }
 
-            document.getElementById('serial').textContent = serialLines.join('\n');
-        });
-
-        document.getElementById('printBtn').addEventListener('click', function () {
-            window.print();
-        });
-
-        // Ensure only one stop mode input is enabled at a time
-        const radios = document.querySelectorAll('input[name="stopMode"]');
-        radios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                document.getElementById('stopDoses').disabled = true;
-                document.getElementById('stopDays').disabled = true;
-                document.getElementById('stopDate').disabled = true;
-                if (this.value === 'doses') document.getElementById('stopDoses').disabled = false;
-                if (this.value === 'days') document.getElementById('stopDays').disabled = false;
-                if (this.value === 'date') document.getElementById('stopDate').disabled = false;
+            // Build map dateStr -> array of timeStr
+            const doseMap = {};
+            doses.forEach(d => {
+                if (!doseMap[d.dateStr]) doseMap[d.dateStr] = [];
+                doseMap[d.dateStr].push(d.timeStr);
             });
+
+            // Determine month range
+            const firstDate = new Date(doses[0].date);
+            const lastDate = new Date(doses[doses.length-1].date);
+            const startYear = firstDate.getFullYear();
+            const startMonth = firstDate.getMonth(); // 0-11
+            const endYear = lastDate.getFullYear();
+            const endMonth = lastDate.getMonth();
+
+            // Generate list of months to display
+            const months = [];
+            let y = startYear, m = startMonth;
+            while (y < endYear || (y === endYear && m <= endMonth)) {
+                months.push({year: y, month: m});
+                if (m === 11) { m = 0; y++; } else { m++; }
+            }
+
+            // Display patient info
+            const patientInfoDisplay = document.getElementById('patientInfoDisplay');
+            let patientInfoHTML = '';
+            if (patientName || patientBirthday || patientMRN) {
+                patientInfoHTML = '<strong>Patient:</strong> ';
+                if (patientName) patientInfoHTML += patientName + ' ';
+                if (patientBirthday) patientInfoHTML += 'DOB: ' + patientBirthday + ' ';
+                if (patientMRN) patientInfoHTML += 'MRN: ' + patientMRN;
+                patientInfoHTML += '<br>';
+            }
+            patientInfoDisplay.innerHTML = patientInfoHTML;
+
+            // Generate calendars for each month
+            const monthlyCalendarDiv = document.getElementById('monthlyCalendar');
+            let calendarHTML = '';
+            months.forEach((mObj, idx) => {
+                const year = mObj.year;
+                const month = mObj.month; // 0-11
+                const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {year: 'numeric', month: 'long'});
+                calendarHTML += `<h3>${monthName} ${year}</h3>`;
+                calendarHTML += '<table class="calendar-table"><thead><tr>';
+                const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                weekDays.forEach(day => {
+                    calendarHTML += `<th class="weekday">${day}</th>`);
+                });
+                calendarHTML += '</tr></thead><tbody>';
+
+                // First day of month
+                const firstDay = new Date(year, month, 1);
+                // Days in month
+                const daysInMonth = new Date(year, month+1, 0).getDate();
+                // Day of week of first day (0=Sun, ..., 6=Sat)
+                const startOffset = firstDay.getDay(); // 0-6
+
+                let day = 1;
+                for (let week = 0; week < 6; week++) { // up to 6 weeks
+                    calendarHTML += '<tr>';
+                    for (let col = 0; col < 7; col++) {
+                        if (week === 0 && col < startOffset) {
+                            // padding days before month start
+                            calendarHTML += '<td></td>';
+                        } else if (day > daysInMonth) {
+                            // padding days after month end
+                            calendarHTML += '<td></td>';
+                        } else {
+                            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                            const isToday = (day === new Date().getDate() &&
+                                            month === new Date().getMonth() &&
+                                            year === new Date().getFullYear());
+                            const hasDose = doseMap[dateStr] && doseMap[dateStr].length > 0;
+                            let classes = '';
+                            if (isToday) classes += ' today';
+                            if (hasDose) classes += ' has-dose';
+                            calendarHTML += `<td class="${classes.trim()}">`;
+                            calendarHTML += `<div class="day-number">${day}</div>`;
+                            if (hasDose) {
+                                const times = doseMap[dateStr].join(', ');
+                                calendarHTML += `<div class="dose-times">${times}</div>`;
+                            }
+                            calendarHTML += '</td>';
+                            day++;
+                        }
+                    }
+                    calendarHTML += '</tr>';
+                    if (day > daysInMonth) break;
+                }
+                calendarHTML += '</tbody></table>';
+                if (idx < months.length-1) calendarHTML += '<hr>';
+            });
+
+            monthlyCalendarDiv.innerHTML = calendarHTML;
         });
-        // Initialize
-        document.getElementById('stopDoses').disabled = false;
-        document.getElementById('stopDays').disabled = true;
-        document.getElementById('stopDate').disabled = true;
     </script>
 </body>
 </html>
