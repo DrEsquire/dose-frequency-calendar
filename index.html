@@ -306,7 +306,7 @@ document.getElementById('generate').addEventListener('click', function () {
 
         const month = mObj.month; // 0-11
 
-        const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {year: 'numeric', month: 'long'});
+        const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {month: 'long'});
 
         calendarHTML += `<h3>${monthName} ${year}</h3>`;
 
@@ -401,6 +401,19 @@ document.getElementById('generate').addEventListener('click', function () {
 
     monthlyCalendarDiv.innerHTML = calendarHTML;
 
+// Auto-select stop condition radio button when user types in corresponding inputs
+document.getElementById('stopDoses').addEventListener('input', function () {
+    document.querySelector('input[name=\"stopMode\"][value=\"doses\"]').checked = true;
+});
+document.getElementById('stopDays').addEventListener('input', function () {
+    document.querySelector('input[name=\"stopMode\"][value=\"days\"]').checked = true;
+});
+document.getElementById('stopDate').addEventListener('input', function () {
+    document.querySelector('input[name=\"stopMode\"][value=\"date\"]').checked = true;
+});
+document.getElementById('printBtn').addEventListener('click', function () {
+    window.print();
+});
 });</script>
 </body>
 </html>
