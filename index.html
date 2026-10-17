@@ -393,6 +393,7 @@ document.getElementById('generate').addEventListener('click', function () {
 
             if (day > daysInMonth) break;
 
+<<<<<<< HEAD
         }
 
         calendarHTML += '</tbody></table>';
@@ -405,5 +406,116 @@ document.getElementById('generate').addEventListener('click', function () {
     monthlyCalendarDiv.innerHTML = calendarHTML;
 
 });</script>
+=======
+            console.log('Total doses:', totalDoses);
+
+            // Generate dose dates and times
+            const doses = [];
+            let current = new Date(start);
+            for (let i = 0; i < totalDoses; i++) {
+                const dateStr = current.toISOString().slice(0,10); // YYYY-MM-DD
+                const timeStr = current.toTimeString().slice(0,5); // HH:MM
+                doses.push({date: new Date(current), dateStr, timeStr});
+                // add interval hours
+                current = new Date(current.getTime() + intervalHours * 3600 * 1000);
+            }
+
+            // Build map dateStr -> array of timeStr
+            const doseMap = {};
+            doses.forEach(d => {
+                if (!doseMap[d.dateStr]) doseMap[d.dateStr] = [];
+                doseMap[d.dateStr].push(d.timeStr);
+            });
+
+            // Determine month range
+            const firstDate = new Date(doses[0].date);
+            const lastDate = new Date(doses[doses.length-1].date);
+            const startYear = firstDate.getFullYear();
+            const startMonth = firstDate.getMonth(); // 0-11
+            const endYear = lastDate.getFullYear();
+            const endMonth = lastDate.getMonth();
+
+            // Generate list of months to display
+            const months = [];
+            let y = startYear, m = startMonth;
+            while (y < endYear || (y === endYear && m <= endMonth)) {
+                months.push({year: y, month: m});
+                if (m === 11) { m = 0; y++; } else { m++; }
+            }
+
+            // Display patient info
+            const patientInfoDisplay = document.getElementById('patientInfoDisplay');
+            let patientInfoHTML = '';
+            if (patientName || patientBirthday || patientMRN) {
+                patientInfoHTML = '<strong>Patient:</strong> ';
+                if (patientName) patientInfoHTML += patientName + ' ';
+                if (patientBirthday) patientInfoHTML += 'DOB: ' + patientBirthday + ' ';
+                if (patientMRN) patientInfoHTML += 'MRN: ' + patientMRN;
+                patientInfoHTML += '<br>';
+            }
+            patientInfoDisplay.innerHTML = patientInfoHTML;
+
+            // Generate calendars for each month
+            const monthlyCalendarDiv = document.getElementById('monthlyCalendar');
+            let calendarHTML = '';
+            months.forEach((mObj, idx) => {
+                const year = mObj.year;
+                const month = mObj.month; // 0-11
+                const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {year: 'numeric', month: 'long'});
+                calendarHTML += `<h3>${monthName} ${year}</h3>`;
+                calendarHTML += '<table class="calendar-table"><thead><tr>';
+                const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                weekDays.forEach(day => {
+                    calendarHTML += `<th class="weekday">${day}</th>`);
+                });
+                calendarHTML += '</tr></thead><tbody>';
+
+                // First day of month
+                const firstDay = new Date(year, month, 1);
+                // Days in month
+                const daysInMonth = new Date(year, month+1, 0).getDate();
+                // Day of week of first day (0=Sun, ..., 6=Sat)
+                const startOffset = firstDay.getDay(); // 0-6
+
+                let day = 1;
+                for (let week = 0; week < 6; week++) { // up to 6 weeks
+                    calendarHTML += '<tr>';
+                    for (let col = 0; col < 7; col++) {
+                        if (week === 0 && col < startOffset) {
+                            // padding days before month start
+                            calendarHTML += '<td></td>';
+                        } else if (day > daysInMonth) {
+                            // padding days after month end
+                            calendarHTML += '<td></td>';
+                        } else {
+                            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                            const isToday = (day === new Date().getDate() &&
+                                            month === new Date().getMonth() &&
+                                            year === new Date().getFullYear());
+                            const hasDose = doseMap[dateStr] && doseMap[dateStr].length > 0;
+                            let classes = '';
+                            if (isToday) classes += ' today';
+                            if (hasDose) classes += ' has-dose';
+                            calendarHTML += `<td class="${classes.trim()}">`;
+                            calendarHTML += `<div class="day-number">${day}</div>`;
+                            if (hasDose) {
+                                const times = doseMap[dateStr].join(', ');
+                                calendarHTML += `<div class="dose-times">${times}</div>`;
+                            }
+                            calendarHTML += '</td>';
+                            day++;
+                        }
+                    }
+                    calendarHTML += '</tr>';
+                    if (day > daysInMonth) break;
+                }
+                calendarHTML += '</tbody></table>';
+                if (idx < months.length-1) calendarHTML += '<hr>';
+            });
+
+            monthlyCalendarDiv.innerHTML = calendarHTML;
+        });
+    </script>
+>>>>>>> 8a04574366246ac5eb6ef6049586b7cb35fc2ae0
 </body>
 </html>
