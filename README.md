@@ -1,6 +1,6 @@
 # Dosing Calendar Generator
 
-A simple, client‑side web app that generates printable monthly dosing calendars for intravenous medications (e.g., inotropes). The tool runs entirely in the browser—no data is stored, uploaded, or transmitted.
+A simple, client‑side web app that generates printable monthly dosing calendars for intravenous medications (e.g., Vancomycin). The tool runs entirely in the browser—no data is stored, uploaded, or transmitted.
 
 ## Features
 
