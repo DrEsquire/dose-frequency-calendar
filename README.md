@@ -1,6 +1,6 @@
 # Dosing Calendar Generator
 
-A simple, client‑side web app that generates printable monthly dosing calendars for intravenous medications (e.g., inotropes). The tool runs entirely in the browser—no data is stored, uploaded, or transmitted.
+A simple, client‑side web app that generates printable monthly dosing calendars for intravenous medications (e.g., Vancomycin). The tool runs entirely in the browser—no data is stored, uploaded, or transmitted.
 
 ## Features
 
@@ -19,8 +19,8 @@ A simple, client‑side web app that generates printable monthly dosing calendar
 
 1. Open the page (or visit the live GitHub Pages link).
 2. Fill in:
-   - **Drug:** medication name and dose (e.g., "Dobutamine 5 mg/mL").
-   - **Dosing Interval (hours):** time between doses (e.g., `6` or `8`).
+   - **Drug:** medication name and dose (e.g., "Vancomycin 1500 mg").
+   - **Dosing Interval (hours):** time between doses (e.g., `18`).
    - **Start Date** and **Start Time** (default 08:00).
    - Optional **Patient** fields (Name, Date of Birth, MRN).
    - Choose a stop condition and enter the corresponding value.
