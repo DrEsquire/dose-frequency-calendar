@@ -226,9 +226,9 @@ document.getElementById('generate').addEventListener('click', function () {
 
         doses.push({date: new Date(current), dateStr, timeStr});
 
-        // add interval hours
-
-        current = new Date(current.getTime() + intervalHours * 3600 * 1000);
+        // add interval hours (preserves local time across DST)
+                current = new Date(current);
+                current.setHours(current.getHours() + intervalHours);
 
     }
 
