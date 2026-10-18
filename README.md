@@ -19,7 +19,7 @@ A simple, client‑side web app that generates printable monthly dosing calendar
 
 1. Open the page (or visit the live GitHub Pages link).
 2. Fill in:
-   - **Drug:** medication name and dose (e.g., "Dobutamine 5 mg/mL").
+   - **Drug:** medication name and dose (e.g., "Vancomycin 1500 mg").
    - **Dosing Interval (hours):** time between doses (e.g., `6` or `8`).
    - **Start Date** and **Start Time** (default 08:00).
    - Optional **Patient** fields (Name, Date of Birth, MRN).
